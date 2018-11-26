@@ -11,10 +11,15 @@ stdenv.mkDerivation rec {
   src = contrailWorkspace;
   USER = "contrail";
   NIX_CFLAGS_COMPILE = "-I ${pkgs.libxml2.dev}/include/libxml2/";
+  # Only required on R4.1
+  dontUseCmakeConfigure = true;
+
   buildInputs = with pkgs; contrailBuildInputs ++ [ libpcap libnl ];
+
   buildPhase = ''
     scons --optimization=production --root=./ vrouter/utils
   '';
+
   installPhase = ''
     mkdir -p $out/bin
     cp build/production/vrouter/utils/usr/bin/* $out/bin/
