@@ -26,9 +26,12 @@ let
       # sseclient = callPackage ./sseclient.nix { };
       # jsonpickle = callPackage ./jsonpickle.nix { };
       bitarray = callPackage ./bitarray.nix { };
+      flexmock = callPackage ./flexmock.nix { };
+      junitxml = callPackage ./junitxml.nix { };
       keystonemiddleware = callPackage ./keystonemiddleware { };
       neutron_constants = callPackage ./neutron_constants { };
       python-neutronclient = callPackage ./python-neutronclient { };
+      python-novaclient = callPackage ./python-novaclient { };
       contrail_neutron_plugin = callPackage ./contrail-neutron-plugin.nix { };
       contrail_vrouter_api = callPackage ./vrouter-api.nix { };
       vnc_api = callPackage ./vnc-api.nix { };

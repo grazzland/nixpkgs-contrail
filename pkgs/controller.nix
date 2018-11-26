@@ -46,6 +46,14 @@ stdenv.mkDerivation {
         --replace "['main.cc', 'options.cc', 'sandesh/control_node_sandesh.cc']" "[]"
     '' +
     optionalString isContrail41 ''
+      # Workaround
+      # build/include/sandesh/sandesh_uve.h:211:50: warning: variable ‘dit’ set but not used [-Wunused-but-set-variable]
+      # typename uve_table_map::iterator dit = a->second.end();
+
+      substituteInPlace src/SConscript \
+        --replace "-DRAPIDJSON_NAMESPACE=contrail_rapidjson'" \
+                  "-DRAPIDJSON_NAMESPACE=contrail_rapidjson', '-Wno-error=unused-but-set-variable'"
+
       substituteInPlace src/control-node/SConscript \
         --replace "['main.cc', 'options.cc']" "[]"
 
