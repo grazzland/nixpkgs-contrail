@@ -1,4 +1,6 @@
-{ pkgs, stdenv, contrailSources, isContrailMaster, isContrail32 }:
+{ pkgs, stdenv, contrailSources, isContrail41, isContrail32 }:
+
+with pkgs.lib;
 
 stdenv.mkDerivation {
   name = "controller";
@@ -12,7 +14,7 @@ stdenv.mkDerivation {
     #	distro. To avoid this, we fix them.
     substituteInPlace lib/SConscript --replace \
       'for dir in subdirs:' \
-      'for dir in ["bind", "gunit", "hiredis", "http_parser", "pugixml", "rapidjson", "thrift", "openvswitch", "tbb" ${pkgs.lib.optionalString isContrailMaster '', "SimpleAmqpClient" ''}]:'
+      'for dir in ["bind", "gunit", "hiredis", "http_parser", "pugixml", "rapidjson", "thrift", "openvswitch", "tbb" ${optionalString isContrail41 '', "SimpleAmqpClient" ''}]:'
 
     substituteInPlace src/vnsw/agent/pkt/SConscript --replace \
       'AgentEnv.Clone()' \
@@ -31,7 +33,7 @@ stdenv.mkDerivation {
     substituteInPlace src/query_engine/SConscript \
       --replace "source = buildinfo_dep_libs + qed_sources + SandeshGenSrcs +" "source = buildinfo_dep_libs + SandeshGenSrcs +"
     '' +
-    pkgs.lib.optionalString isContrail32 ''
+    optionalString isContrail32 ''
       # This has to be backported to 3.2
       # https://bugs.launchpad.net/juniperopenstack/+bug/1638636
       # and commit
@@ -43,7 +45,7 @@ stdenv.mkDerivation {
       substituteInPlace src/control-node/SConscript \
         --replace "['main.cc', 'options.cc', 'sandesh/control_node_sandesh.cc']" "[]"
     '' +
-    pkgs.lib.optionalString isContrailMaster ''
+    optionalString isContrail41 ''
       substituteInPlace src/control-node/SConscript \
         --replace "['main.cc', 'options.cc']" "[]"
 

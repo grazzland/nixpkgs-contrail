@@ -1,24 +1,33 @@
 { pkgs
+, stdenv
 , isContrail32
+, isContrail41
 , contrailVersion
 , contrailBuildInputs
 , contrailSources
 , contrailThirdParty
 , contrailController }:
 
-pkgs.stdenv.mkDerivation rec {
+with pkgs.lib;
+
+stdenv.mkDerivation rec {
   name = "contrail-workspace";
   version = contrailVersion;
   buildInputs = contrailBuildInputs;
+  USER = "contrail";
+  # Only required on R4.1
+  dontUseCmakeConfigure = true;
 
-  phases = [ "unpackPhase" "patchPhase" "configurePhase" "installPhase" "fixupPhase" ];
+  phases = [ "unpackPhase" "patchPhase" "configurePhase" "buildPhase" "installPhase" "fixupPhase" ];
 
   # We don't override the patchPhase to be nix-shell compliant
   preUnpack = ''mkdir workspace || exit; cd workspace'';
+
   srcs = with contrailSources;
-    [ build contrailThirdParty generateds sandesh vrouter neutronPlugin contrailController ]
-    ++ pkgs.lib.optional (!isContrail32) [ sources.contrailCommon ];
-  sourceRoot = ''./'';
+    [ build contrailThirdParty generateds sandesh vrouter neutronPlugin contrailController ];
+
+  sourceRoot = "./";
+
   postUnpack = with contrailSources; ''
     cp ${build.out}/SConstruct .
 
@@ -34,10 +43,6 @@ pkgs.stdenv.mkDerivation rec {
 
     mkdir openstack
     mv ${neutronPlugin.name} openstack/neutron_plugin
-  '' +
-  pkgs.lib.optionalString (!isContrail32) ''
-    mkdir src
-    mv ${contrailCommon.name} src/contrail-common
   '';
 
   prePatch = ''
@@ -49,7 +54,18 @@ pkgs.stdenv.mkDerivation rec {
     # GenerateDS crashes woth python 2.7.14 while it works with python 2.7.13
     # See https://bugs.launchpad.net/opencontrail/+bug/1721039
     sed -i 's/        parser.parse(infile)/        parser.parse(StringIO.StringIO(infile.getvalue()))/' tools/generateds/generateDS.py
-      
   '';
+
+  # build sandesh here to avoid building it multiple times in control, vrouterAgent, etc...
+  buildPhase = ''
+    scons -j1 --optimization=production tools/sandesh/library/common
+    ln -sf ../../third_party/rapidjson/include/rapidjson build/include
+    ln -sf ../../third_party/tbb-2018_U5/include/tbb build/include
+    ln -sf ../../../third_party/openvswitch-2.3.0/include build/include/openvswitch
+    ln -sf ../../../third_party/openvswitch-2.3.0/lib build/include/openvswitch
+  '' + optionalString isContrail41 ''
+    ln -sf ../../third_party/SimpleAmqpClient/src/SimpleAmqpClient build/include
+  '';
+
   installPhase = "mkdir $out; cp -r ./ $out";
 }

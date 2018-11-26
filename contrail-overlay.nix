@@ -20,8 +20,8 @@ let
     contrailSources = null;
     contrailVersion = null;
 
-    isContrailMaster = lself.contrailVersion == "master";
     isContrail32 = lself.contrailVersion == "3.2";
+    isContrail41 = lself.contrailVersion == "4.1";
 
     contrailBuildInputs = with self; [
       scons gcc5 pkgconfig autoconf automake libtool flex_2_5_35 bison
@@ -55,10 +55,11 @@ let
     contrailThirdPartyCache = callPackage ./pkgs/third-party-cache.nix { };
     contrailThirdParty = callPackage ./pkgs/third-party.nix { };
     contrailController = callPackage ./pkgs/controller.nix { };
-    contrailWorkspace = callPackage ./pkgs/workspace.nix { };
+    contrailWorkspace = callPackage ./pkgs/workspace.nix { stdenv = stdenv_gcc5; };
     contrailPythonBuild = callPackage ./pkgs/python-build.nix { stdenv = stdenv_gcc5; };
 
     lib = {
+      # we switch to gcc 4.9 because gcc 5 is not supported before kernel 3.18
       buildVrouter = callPackage ./pkgs/vrouter.nix { stdenv = stdenv_gcc49; };
       # used for exposing to hydra
       sanitizeOutputs = contrailAttrs:
@@ -73,7 +74,7 @@ let
             "contrailWorkspace"
             "contrailPythonBuild"
             "isContrail32"
-            "isContrailMaster"
+            "isContrail41"
             "pythonPackages"
             "lib"
             "modules"
@@ -149,6 +150,16 @@ in {
     contrailThirdPartyCache = super.contrailThirdPartyCache.overrideAttrs(oldAttrs:
       { outputHash = "1rvj0dkaw4jbgmr5rkdw02s1krw1307220iwmf2j0p0485p7d3h2"; });
     tools.databaseLoader = callPackage ./tools/contrail-database-loader.nix { contrailPkgs = self; };
+  });
+
+  contrail41 = contrail.overrideScope' (lself: lsuper: {
+    contrailVersion = "4.1";
+    contrailSources = callPackage ./sources-R4.1.nix { };
+    contrailBuildInputs = with self; lsuper.contrailBuildInputs ++ [
+      cmake rabbitmq-c gperftools
+    ];
+    # contrailThirdPartyCache = super.contrailThirdPartyCache.overrideAttrs(oldAttrs:
+    #   { outputHash = "1rvj0dkaw4jbgmr5rkdw02s1krw1307220iwmf2j0p0485p7d3h2"; });
   });
 
 }
