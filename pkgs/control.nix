@@ -3,19 +3,18 @@
 , contrailVersion
 , contrailBuildInputs
 , contrailWorkspace
-, isContrailMaster }:
+, isContrail41
+}:
 
 stdenv.mkDerivation rec {
   name = "contrail-control-${version}";
   version = contrailVersion;
   src = contrailWorkspace;
   USER = "contrail";
-  # Only required on master
+  # Only required on R4.1
   dontUseCmakeConfigure = true;
 
-  buildInputs = with pkgs;
-    contrailBuildInputs ++
-    (pkgs.lib.optional isContrailMaster [ cmake rabbitmq-c gperftools ]);
+  buildInputs = contrailBuildInputs;
 
   buildPhase = ''
     scons -j1 --optimization=production contrail-control

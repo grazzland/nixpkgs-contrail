@@ -3,7 +3,7 @@
 , contrailVersion
 , contrailBuildInputs
 , contrailWorkspace
-, isContrailMaster
+, isContrail41
 }:
 
 stdenv.mkDerivation rec {
@@ -11,13 +11,10 @@ stdenv.mkDerivation rec {
   version = contrailVersion;
   src = contrailWorkspace;
   USER = "contrail";
-  # Only required on master
+  # Only required on R4.1
   dontUseCmakeConfigure = true;
   NIX_CFLAGS_COMPILE = "-Wno-unused-but-set-variable";
-  buildInputs =
-    contrailBuildInputs ++
-    [ pkgs.makeWrapper ] ++
-    (pkgs.lib.optional isContrailMaster [ pkgs.cmake pkgs."rabbitmq-c" pkgs.gperftools ]);
+  buildInputs = contrailBuildInputs ++ [ pkgs.makeWrapper ];
   buildPhase = ''
     scons -j2 --optimization=production contrail-vrouter-agent
   '';

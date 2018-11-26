@@ -17,8 +17,7 @@ stdenv.mkDerivation rec {
   dontUseCmakeConfigure = true;
   buildInputs = with pkgs;
     contrailBuildInputs ++
-    [ coreutils cyrus_sasl.dev gperftools lz4.dev libgrok pcre.dev tokyocabinet libevent.dev ] ++
-    (pkgs.lib.optional (!isContrail32) [ cmake rabbitmq-c ]);
+    [ coreutils cyrus_sasl.dev gperftools lz4.dev libgrok pcre.dev tokyocabinet libevent.dev ];
 
   # To fix a scons cycle on buildinfo
   patches = pkgs.lib.optional isContrail32 [ ./patches/analytics.patch ];
