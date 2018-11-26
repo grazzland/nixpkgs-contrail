@@ -18,9 +18,13 @@ stdenv.mkDerivation rec {
   dontUseCmakeConfigure = true;
 
   buildInputs = with pythonPackages;
-    contrailBuildInputs ++
+    contrailBuildInputs
     # Used by python unit tests
-    [ bitarray pbr funcsigs mock bottle ];
+    ++ [ bitarray pbr funcsigs mock bottle ]
+    ++ optionals isContrail41 [
+      pycassa coverage kombu fixtures kazoo flexmock webtest netaddr
+      subunit python-novaclient httpretty pyyaml testrepository junitxml
+    ];
 
   propagatedBuildInputs = with pythonPackages; [
     psutil geventhttpclient
@@ -38,12 +42,22 @@ stdenv.mkDerivation rec {
 
     # Tests are disabled because they requires to compile vizd (collector)
     sed -i '/OpEnv.AlwaysBuild(test_cmd)/d' controller/src/opserver/SConscript
-  '' + (optionalString isContrail41 ''
-    substituteInPlace controller/src/config/common/setup.py --replace "test_suite='tests.test_suite'," ""
-  '');
+  '' + optionalString isContrail41 ''
+    # remove builds
+    substituteInPlace controller/src/config/SConscript --replace "'device-manager'," ""
+    substituteInPlace controller/src/config/SConscript --replace "'config-client-mgr'," ""
+    substituteInPlace controller/src/config/SConscript --replace "'contrail_issu'," ""
+    # don't use venv for tests
+    for f in $(find controller/src/ -name "run_tests.sh")
+    do
+      [ $f != "controller/src/common/tests/tools/run_tests.sh" ] && \
+        substituteInPlace ''${f} --replace "run_tests.sh" "run_tests.sh -N"
+    done
+  '';
 
   buildPhase = ''
-    export PYTHONPATH=$PYTHONPATH:controller/src/config/common/:build/production/config/api-server/vnc_cfg_api_server/gen/
+    export PYTHONPATH=$PYTHONPATH:$(pwd)/build/production/api-lib:$(pwd)/build/production/config/common:$(pwd):build/production/config/api-server:$(pwd)/build/production/config/api-server/vnc_cfg_api_server/gen:$(pwd)/build/production/tools/sandesh/library/python:$(pwd)/controller/src/config/common
+
     scons -j1 --optimization=production controller/src/config
 
     scons -j1 --optimization=production contrail-analytics-api
@@ -51,6 +65,6 @@ stdenv.mkDerivation rec {
   '';
 
   installPhase = ''
-    ${optionalString isContrail41 "rm build/third_party/thrift/lib/cpp/.libs/concurrency_test"}
-    mkdir $out; cp -r build/* $out'';
+    mkdir $out; cp -r build/* $out
+  '';
 }
