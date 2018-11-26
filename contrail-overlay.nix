@@ -116,7 +116,6 @@ let
     vrouterNetNs = callPackage ./pkgs/vrouter-netns.nix { };
 
     # config
-    discovery = callPackage ./pkgs/discovery.nix { };
     apiServer = callPackage ./pkgs/api-server.nix { };
     svcMonitor = callPackage ./pkgs/svc-monitor.nix { };
     schemaTransformer = callPackage ./pkgs/schema-transformer.nix { };
@@ -149,6 +148,7 @@ in {
     contrailSources = callPackage ./sources-R3.2.nix { };
     contrailThirdPartyCache = super.contrailThirdPartyCache.overrideAttrs(oldAttrs:
       { outputHash = "1rvj0dkaw4jbgmr5rkdw02s1krw1307220iwmf2j0p0485p7d3h2"; });
+    discovery = self.callPackage ./pkgs/discovery.nix { };
     tools.databaseLoader = callPackage ./tools/contrail-database-loader.nix { contrailPkgs = self; };
   });
 

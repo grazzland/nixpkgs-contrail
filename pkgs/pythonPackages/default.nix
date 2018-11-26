@@ -3,8 +3,11 @@
 , contrailVersion
 , contrailWorkspace
 , contrailPythonBuild
+, isContrail32
 , isContrail41
 }:
+
+with pkgs.lib;
 
 let
   contrailPythonPackages = self: super:
@@ -41,6 +44,7 @@ let
       vnc_openstack = callPackage ./vnc-openstack.nix { };
       sandesh_common = callPackage ./sandesh-common.nix { };
       pysandesh = callPackage ./pysandesh.nix { };
+    } // optionalAttrs isContrail32 {
       discovery_client = callPackage ./discovery-client.nix { };
     };
 in
