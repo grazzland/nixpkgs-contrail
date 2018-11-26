@@ -3,13 +3,15 @@
 , contrailVersion
 , contrailWorkspace
 , contrailPythonBuild
+, isContrail41
 }:
 
 let
   contrailPythonPackages = self: super:
     let
       callPackage = pkgs.lib.callPackageWith
-        (self // { inherit pkgs contrailVersion contrailWorkspace contrailPythonBuild pythonPackages; });
+        (self // { inherit pkgs contrailVersion contrailWorkspace
+                           contrailPythonBuild pythonPackages isContrail41; });
     in {
       gevent = super.gevent.overridePythonAttrs(old: rec {
         version = "1.2.2";
