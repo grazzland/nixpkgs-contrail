@@ -57,13 +57,12 @@ stdenv.mkDerivation rec {
   '';
 
   # build sandesh here to avoid building it multiple times in control, vrouterAgent, etc...
-  buildPhase = ''
+  buildPhase = "" + optionalString isContrail41 ''
     scons -j1 --optimization=production tools/sandesh/library/common
     ln -sf ../../third_party/rapidjson/include/rapidjson build/include
     ln -sf ../../third_party/tbb-2018_U5/include/tbb build/include
     ln -sf ../../../third_party/openvswitch-2.3.0/include build/include/openvswitch
     ln -sf ../../../third_party/openvswitch-2.3.0/lib build/include/openvswitch
-  '' + optionalString isContrail41 ''
     ln -sf ../../third_party/SimpleAmqpClient/src/SimpleAmqpClient build/include
   '';
 
