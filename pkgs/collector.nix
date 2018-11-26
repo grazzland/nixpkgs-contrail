@@ -11,10 +11,10 @@ stdenv.mkDerivation rec {
   name = "contrail-collector-${version}";
   version = contrailVersion;
   src = contrailWorkspace;
-  USER="contrail";
-
-  # Only required on master
+  USER = "contrail";
+  # Only required on R4.1
   dontUseCmakeConfigure = true;
+
   buildInputs = with pkgs;
     contrailBuildInputs ++
     [ coreutils cyrus_sasl.dev gperftools lz4.dev libgrok pcre.dev tokyocabinet libevent.dev ];
@@ -29,6 +29,7 @@ stdenv.mkDerivation rec {
 
     scons -j1 --optimization=production contrail-collector
   '';
+
   installPhase = ''
     mkdir -p $out/{bin,etc/contrail}
     cp build/production/analytics/vizd $out/bin/contrail-collector
