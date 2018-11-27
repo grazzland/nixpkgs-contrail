@@ -15,6 +15,8 @@ kernelHeaders: stdenv.mkDerivation rec {
   hardeningDisable = [ "pic" ];
   USER = "contrail";
   KERNEL_VERSION = getVersion kernelHeaders;
+  # Only required on R4.1
+  dontUseCmakeConfigure = true;
   buildInputs = contrailBuildInputs ++ [ pkgs.libelf ];
   buildPhase = ''
     # We patch the kernel Makefile ONLY to reduce the closure
