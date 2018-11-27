@@ -24,40 +24,7 @@ let
     };
   };
 
-  agentConf = pkgs.writeTextFile {
-    name = "contrail-agent.conf";
-    text = ''
-      [DEFAULT]
-      log_level = ${cfg.logLevel}
-      log_file = /var/log/contrail/vrouter-agent.log
-      log_local = 0
-      use_syslog = 1
-
-      disable_flow_collection = 1
-
-      [DISCOVERY]
-      port = 5998
-      server = ${cfg.discoveryHost}
-
-      [VIRTUAL-HOST-INTERFACE]
-      name = vhost0
-      ip = ${cfg.vhostIP}/24
-      gateway = ${cfg.vhostGateway}
-      physical_interface = ${cfg.vhostInterface}
-
-      [FLOWS]
-      max_vm_flows = 20
-
-      [METADATA]
-      metadata_proxy_secret = t96a4skwwl63ddk6
-
-      [TASK]
-      tbb_keepawake_timeout = 25
-
-      [SERVICE-INSTANCE]
-      netns_command = ${contrailPkgs.vrouterNetNs}/bin/opencontrail-vrouter-netns
-    '';
-  };
+  confFile = import (./configuration + "/R${contrailPkgs.contrailVersion}/vrouter-agent.nix") { inherit pkgs contrailPkgs cfg; };
 
 in {
 
@@ -68,9 +35,9 @@ in {
         type = types.bool;
         default = false;
       };
-      configurationFilepath = mkOption {
-        type = types.str;
-        default = "";
+      configFile = mkOption {
+        type = types.path;
+        default = confFile;
         description = ''
           To specify a alternative configuration filepath.
           The generated configuration file is no longer used.
@@ -159,13 +126,14 @@ in {
           path = [ pkgs.netcat pkgs.contrailApiCliWithExtra ];
           preStart = ''
             mkdir -p /var/log/contrail/
+          '' + optionalString contrailPkgs.isContrail32 ''
             while ! nc -vz ${cfg.discoveryHost} 5998; do
               sleep 2
             done
           '';
-          script = if cfg.configurationFilepath == ""
-            then "${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${agentConf}"
-            else "${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${cfg.configurationFilepath}";
+          script = ''
+            ${contrailPkgs.vrouterAgent}/bin/contrail-vrouter-agent --config_file ${confFile}
+          '';
           postStart = mkIf cfg.provisionning ''
             while ! nc -vz ${cfg.apiHost} 8082; do
               sleep 2

@@ -5,11 +5,7 @@ with lib;
 let
 
   cfg = config.contrail.control;
-  confFile =
-    if contrailPkgs.isContrail32 then
-      import ./configuration/R3.2/control.nix { inherit pkgs cfg; }
-    else
-      import ./configuration/master/control.nix { inherit pkgs cfg; };
+  confFile = import (./configuration + "/R${contrailPkgs.contrailVersion}/control.nix") { inherit pkgs cfg; };
 
 in {
   options = {

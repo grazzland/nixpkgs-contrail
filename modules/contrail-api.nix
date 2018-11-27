@@ -2,14 +2,15 @@
 , lib
 , pkgs
 , contrailPkgs
-, ... }:
+, ...
+}:
 
 with lib;
 
 let
 
   cfg = config.contrail.api;
-  confFile = import ./configuration/R3.2/api.nix { inherit pkgs cfg; };
+  confFile = import (./configuration + "/R${contrailPkgs.contrailVersion}/api.nix") { inherit pkgs cfg; };
 
 in {
 

@@ -5,7 +5,7 @@ with lib;
 let
 
   cfg = config.contrail.analyticsApi;
-  confFile = import ./configuration/R3.2/analytics-api.nix { inherit pkgs cfg; };
+  confFile = import (./configuration + "/R${contrailPkgs.contrailVersion}/analytics-api.nix") { inherit pkgs cfg; };
 
 in {
 
@@ -35,9 +35,12 @@ in {
     services.redis.enable = true;
     systemd.services.contrail-analytics-api = mkMerge [
       {
+        after = [ "contrail-collector.service" "redis.service" ];
         requires = [ "redis.service" ];
-        after = [ "contrail-collector.service" ];
-        preStart = "mkdir -p /var/log/contrail/ && ${pkgs.redis}/bin/redis-cli config set protected-mode no";
+        preStart = ''
+          mkdir -p /var/log/contrail/
+          ${pkgs.redis}/bin/redis-cli config set protected-mode no
+        '';
         script = "${contrailPkgs.analyticsApi}/bin/contrail-analytics-api --conf_file ${cfg.configFile}";
       }
       (mkIf cfg.autoStart { wantedBy = [ "multi-user.target" ]; })
