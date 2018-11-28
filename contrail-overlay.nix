@@ -158,8 +158,18 @@ in {
     contrailBuildInputs = with self; lsuper.contrailBuildInputs ++ [
       cmake rabbitmq-c gperftools
     ];
-    contrailThirdPartyCache = lsuper.contrailThirdPartyCache.overrideAttrs(oldAttrs:
-      { outputHash = "0wnwz787mwhfabqnwckp1y00sqma6f86r9p107bqgqldyn2xxz0v"; });
+    contrailThirdPartyCache = lsuper.contrailThirdPartyCache.overrideAttrs(old: {
+      outputHash = "0wnwz787mwhfabqnwckp1y00sqma6f86r9p107bqgqldyn2xxz0v";
+    });
+    cassandraCppDriver = lsuper.cassandraCppDriver.overrideAttrs(old: {
+      version = "2.7.1";
+      src = super.fetchFromGitHub {
+        owner = "datastax";
+        repo = "cpp-driver";
+        rev = "1582dc371044d71033875734edc82fe7b9c4d807";
+        sha256 = "0x6lxsz9m7yfwz2slqilc22f3vhhn63ijlph8svp8jr5shs4s8wh";
+      };
+    });
   });
 
 }
