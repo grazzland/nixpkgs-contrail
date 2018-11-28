@@ -158,8 +158,8 @@ in {
     contrailBuildInputs = with self; lsuper.contrailBuildInputs ++ [
       cmake rabbitmq-c gperftools
     ];
-    # contrailThirdPartyCache = super.contrailThirdPartyCache.overrideAttrs(oldAttrs:
-    #   { outputHash = "1rvj0dkaw4jbgmr5rkdw02s1krw1307220iwmf2j0p0485p7d3h2"; });
+    contrailThirdPartyCache = lsuper.contrailThirdPartyCache.overrideAttrs(oldAttrs:
+      { outputHash = "0wnwz787mwhfabqnwckp1y00sqma6f86r9p107bqgqldyn2xxz0v"; });
   });
 
 }
