@@ -33,4 +33,4 @@ pkgs.writeTextFile {
     [SERVICE-INSTANCE]
     netns_command = ${contrailPkgs.vrouterNetNs}/bin/opencontrail-vrouter-netns
   '';
-};
+}
