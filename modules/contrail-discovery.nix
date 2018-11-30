@@ -43,8 +43,9 @@ in {
       {
         after = [ "network.target" "cassandra.service" "rabbitmq.service" "zookeeper.service"
                   # Keyspaces are created by the contrail-api...
-                  "contrail-api.service" ];
-        requires = [ "contrail-api.service" ];
+                  #"contrail-api.service" ];
+                  ];
+        #requires = [ "contrail-api.service" ];
         preStart = "mkdir -p /var/log/contrail/";
         script = "${contrailPkgs.discovery}/bin/contrail-discovery --conf_file ${cfg.configFile}";
         path = [ pkgs.netcat ];

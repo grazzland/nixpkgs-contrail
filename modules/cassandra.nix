@@ -6,10 +6,10 @@ let
   cfg = config.cassandra;
 
   cassandraPkg = pkgs.cassandra_3_0.overrideAttrs (oldAttrs: {
-    name = "cassandra-3.11.1";
+    name = "cassandra-2.1.20";
     src = pkgs.fetchurl {
-      sha256="1vgh4ysnl4xg8g5v6zm78h3sq308r7s17ppbw0ck4bwyfnbddvkg";
-      url = "mirror://apache/cassandra/3.11.1/apache-cassandra-3.11.1-bin.tar.gz";
+      sha1="9efe609848fadefd6adbf5de89b888ad57e2af17";
+      url = "mirror://apache/cassandra/2.1.20/apache-cassandra-2.1.20-bin.tar.gz";
     };
   });
 
@@ -20,16 +20,16 @@ let
     sed -i 's/^# broadcast_rpc_address.*/broadcast_rpc_address: ${cfg.broadcastRpcAddress}/' $out/cassandra.yaml
     cat >> $out/cassandra.yaml << EOF
     data_file_directories:
-        - /tmp/cassandra-data/data
+        - /tmp
     commitlog_directory:
-        - /tmp/cassandra-data/commitlog
+        - /tmp
     saved_caches_directory:
-        - /tmp/cassandra-data/saved_caches
-    hints_directory:
-        - /tmp/cassandra-data/hints
+        - /tmp
+    #hints_directory:
+    #    - /tmp/cassandra-data/hints
     start_rpc: true
     batch_size_warn_threshold_in_kb: 500
-    batch_size_fail_threshold_in_kb: 2000
+    #batch_size_fail_threshold_in_kb: 2000
     EOF
 
     cat >> $out/logback.xml << EOF

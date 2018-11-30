@@ -5,11 +5,11 @@
 
 buildPythonPackage rec {
   pname = "pycassa";
-  version = "1.11.2";
+  version = "1.11.0";
   name = "${pname}-${version}";
   src = fetchPypi {
     inherit pname version;
-    sha256 = "1nsqjzgn6v0rya60dihvbnrnq1zwaxl2qwf0sr08q9qlkr334hr6";
+    sha256 = "2c75f6f83a6208dabf4be3f29c96effae94027467332ee94c85ce133517ab493";
   };
   # Tests are not executed since they require a cassandra up and
   # running
