@@ -39,6 +39,8 @@ let
         api.waitFor = false;
         discovery.waitFor = false;
 
+        api.autoStart = false;
+        discovery.autoStart = false;
         vrouterAgent.autoStart = false;
         schemaTransformer.autoStart = false;
         svcMonitor.autoStart = false;

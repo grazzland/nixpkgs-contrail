@@ -20,11 +20,11 @@ let
     sed -i 's/^# broadcast_rpc_address.*/broadcast_rpc_address: ${cfg.broadcastRpcAddress}/' $out/cassandra.yaml
     cat >> $out/cassandra.yaml << EOF
     data_file_directories:
-        - /tmp
+        - /tmp/cassandra-data/data
     commitlog_directory:
-        - /tmp
+        - /tmp/cassandra-data/commitlog
     saved_caches_directory:
-        - /tmp
+        - /tmp/cassandra-data/saved_caches
     #hints_directory:
     #    - /tmp/cassandra-data/hints
     start_rpc: true
@@ -120,8 +120,10 @@ in {
         chmod a+w /tmp/cassandra-data
         export CASSANDRA_CONF=${cassandraConfigDir}
         export JVM_OPTS="$JVM_OPTS -Dcassandra.jmx.remote.port=7199"
+        export JVM_OPTS="$JVM_OPTS -Dcassandra.jmx.local.port=7199"
         export JVM_OPTS="$JVM_OPTS -Dcassandra.jmx.remote.ssl=false"
         export JVM_OPTS="$JVM_OPTS -Dcassandra.jmx.remote.authenticate=false"
+
         ${cassandraPkg}/bin/cassandra -f -R
       '';
       postStart = ''
